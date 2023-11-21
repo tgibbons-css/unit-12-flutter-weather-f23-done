@@ -37,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    super.initState();
     // call fetchWeather...
     print('in InitState about to get weather...');
     futureWeatherForcasts = fetchWeather();
@@ -52,13 +53,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Image weatherIcon(String weatherDescription) {
-    if (weatherDescription == "Rain") {
-      return Image(image: AssetImage('graphics/rain.png'));
-    }
-    if (weatherDescription == "Clouds") {
-      return Image(image: AssetImage('graphics/cloud.png'));
-    }
-    return Image(image: AssetImage('graphics/sun.png'));
+    final _imageMap = {
+      "Clear": 'graphics/sun.png',
+      "Clouds": 'graphics/cloud.png',
+      "Rain": 'graphics/snow.png'};
+    String imageFile = _imageMap[weatherDescription] ?? 'graphics/sun.png';
+    return Image(image: AssetImage(imageFile));
+
+    // if (weatherDescription == "Rain") {
+    //   return Image(image: AssetImage('graphics/rain.png'));
+    // }
+    // if (weatherDescription == "Clouds") {
+    //   return Image(image: AssetImage('graphics/cloud.png'));
+    // }
+    // return Image(image: AssetImage('graphics/sun.png'));
   }
 
   @override
