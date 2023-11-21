@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'weather_model.dart';
+import 'rest_api.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -29,13 +32,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Widget weatherTile (int position) {
-    print ("Inside weatherTile and setting up tile for positon ${position}");
+
+  late Future<List<DailyForcast>> futureWeatherForcasts;
+
+  @override
+  void initState() {
+    // call fetchWeather...
+    print('in InitState about to get weather...');
+    futureWeatherForcasts = fetchWeather();
+  }
+
+  Widget weatherTile (DailyForcast dailyForcast) {
+    //print ("Inside weatherTile and setting up tile for positon ${position}");
     return ListTile(
-      leading: Image(image: AssetImage('graphics/sun.png')),
-      title: Text("Title Here"),
-      subtitle: Text("Subtitle Jere"),
+      leading: weatherIcon(dailyForcast.weather[0].main),
+      title: Text('Temperature will be ${dailyForcast.temp.day.toString()}'),
+      subtitle: Text(dailyForcast.weather[0].main),
     );
+  }
+
+  Image weatherIcon(String weatherDescription) {
+    if (weatherDescription == "Rain") {
+      return Image(image: AssetImage('graphics/rain.png'));
+    }
+    if (weatherDescription == "Clouds") {
+      return Image(image: AssetImage('graphics/cloud.png'));
+    }
+    return Image(image: AssetImage('graphics/sun.png'));
   }
 
   @override
@@ -44,13 +67,24 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.builder(
-        itemCount: 4,
-        itemBuilder: (BuildContext context, int position) {
-          return Card(
-            child: weatherTile(position),
+      body: FutureBuilder(
+        future: futureWeatherForcasts,
+        builder: (context, snapshot) {
+          if (snapshot.data == null ||
+              snapshot.connectionState == ConnectionState.none) {
+            return Container();
+            // TODO: add loading text field
+          }
+          List<DailyForcast> myForcastList = snapshot.data!;
+          return ListView.builder(
+            itemCount: myForcastList.length,
+            itemBuilder: (BuildContext context, int position) {
+              return Card(
+                child: weatherTile(myForcastList[position]),
+              );
+            },
           );
-        },
+        }
       ),
       // This trailing comma makes auto-formatting nicer for build methods.
     );
